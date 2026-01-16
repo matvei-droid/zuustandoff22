@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    # Используем 22.04, чтобы избежать ошибки "Unable to locate package libtinfo5"
+    # Важно: 22.04, чтобы не было ошибки libtinfo5
     runs-on: ubuntu-22.04
 
     steps:
@@ -20,30 +20,31 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # Автоматическое принятие лицензий и настройка путей
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          log-accepted-android-sdk-licenses: false
-
       - name: Install dependencies
         run: |
           sudo apt update
-          # В Ubuntu 22.04 эти пакеты точно есть
           sudo apt install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
           pip3 install --user --upgrade Cython==0.29.33 virtualenv buildozer
+
+      - name: Fix Android Licenses and Aidl
+        run: |
+          # 1. Принудительно создаем структуру для лицензий
+          mkdir -p $ANDROID_HOME/licenses
+          echo -e "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb7437307295be43d46e\n24333f8a63b6825ea4c5573f69c00e4b44b052d8" > $ANDROID_HOME/licenses/android-sdk-license
+          echo -e "84831b9409646a918e30573bab4c9c91346d8abd\n5046632257cd17473453181e38c3533896439119" > $ANDROID_HOME/licenses/android-sdk-preview-license
+          
+          # 2. Подсовываем лицензии в папку buildozer
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          cp -r $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/ || true
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Принудительно принимаем лицензии перед запуском
-          yes | sdkmanager --licenses || true
+          # Запуск сборки
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
-          # Пробрасываем пути к SDK, которые настроил setup-android
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
-          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
