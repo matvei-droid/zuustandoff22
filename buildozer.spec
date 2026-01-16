@@ -27,7 +27,7 @@ orientation = portrait
 android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, PACKAGE_USAGE_STATS
 
 # Соответствие версии твоего телефона (Android 13)
-android.api = 35
+android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.sdk = 33
