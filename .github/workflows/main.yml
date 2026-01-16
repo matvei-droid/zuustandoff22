@@ -1,11 +1,12 @@
 name: Build zuulauncherso2
-on: [push, pull_request]
+on: 
+  workflow_dispatch: # Добавил кнопку ручного запуска
+  push:
+    branches: [ main ]
 
 jobs:
   build:
-    # Используем 20.04 — это решает проблему "Unable to locate package libtinfo5"
-    runs-on: ubuntu-20.04
-
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -14,28 +15,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Install System Dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
           pip3 install --user --upgrade Cython==0.29.33 virtualenv buildozer
-
-      - name: Pre-accept Android Licenses
-        run: |
-          # Создаем файлы лицензий вручную, чтобы Buildozer не запрашивал Accept (y/N)
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-          echo -e "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb7437307295be43d46e\n24333f8a63b6825ea4c5573f69c00e4b44b052d8" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-          echo -e "84831b9409646a918e30573bab4c9c91346d8abd\n5046632257cd17473453181e38c3533896439119" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
+          # Магия принятия лицензий без лишних утилит
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          echo -e "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb7437307295be43d46e\n24333f8a63b6825ea4c5573f69c00e4b44b052d8" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
