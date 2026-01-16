@@ -22,9 +22,12 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Автоматически принимаем лицензии SDK до начала сборки
+          # ПРИНУДИТЕЛЬНОЕ ПРИНЯТИЕ ЛИЦЕНЗИЙ (РЕШАЕТ ОШИБКУ ACCEPT y/N)
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
           yes | buildozer android signatures || true
-          # Запуск сборки
+          
+          # ЗАПУСК СБОРКИ
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
