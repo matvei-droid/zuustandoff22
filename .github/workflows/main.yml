@@ -46,3 +46,4 @@ jobs:
         with:
           name: zuulauncherso2-apk
           path: bin/*.apk
+ 
