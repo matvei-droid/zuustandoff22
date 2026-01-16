@@ -22,9 +22,9 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Принудительно принимаем лицензии SDK перед сборкой
+          # Автоматически принимаем лицензии SDK до начала сборки
           yes | buildozer android signatures || true
-          # Запуск основной сборки
+          # Запуск сборки
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
@@ -32,5 +32,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: zuulauncherso2-debug-apk
+          name: zuulauncherso2-apk
           path: bin/*.apk
