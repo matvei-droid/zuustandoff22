@@ -3,8 +3,8 @@ on: [push, pull_request]
 
 jobs:
   build:
-    # Важно: 22.04, чтобы не было ошибки libtinfo5
-    runs-on: ubuntu-22.04
+    # Используем 20.04 — это самая стабильная среда для Buildozer без ошибок библиотек
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v4
@@ -20,31 +20,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt update
           sudo apt install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
           pip3 install --user --upgrade Cython==0.29.33 virtualenv buildozer
 
-      - name: Fix Android Licenses and Aidl
+      - name: Pre-accept Android Licenses
         run: |
-          # 1. Принудительно создаем структуру для лицензий
-          mkdir -p $ANDROID_HOME/licenses
-          echo -e "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb7437307295be43d46e\n24333f8a63b6825ea4c5573f69c00e4b44b052d8" > $ANDROID_HOME/licenses/android-sdk-license
-          echo -e "84831b9409646a918e30573bab4c9c91346d8abd\n5046632257cd17473453181e38c3533896439119" > $ANDROID_HOME/licenses/android-sdk-preview-license
-          
-          # 2. Подсовываем лицензии в папку buildozer
+          # Создаем файлы лицензий вручную, чтобы Buildozer не спрашивал Accept (y/N)
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-          cp -r $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/ || true
+          echo -e "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb7437307295be43d46e\n24333f8a63b6825ea4c5573f69c00e4b44b052d8" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo -e "84831b9409646a918e30573bab4c9c91346d8abd\n5046632257cd17473453181e38c3533896439119" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Запуск сборки
+          # Собираем
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
