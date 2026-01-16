@@ -13,24 +13,31 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
           pip3 install --user --upgrade Cython==0.29.33 virtualenv buildozer
 
+      - name: Fix Android SDK and Licenses
+        run: |
+          # Принимаем лицензии системного SDK
+          yes | sdkmanager --licenses || true
+          # Создаем папку для buildozer заранее, чтобы он не качал лишнего
+          mkdir -p ~/.buildozer/android/platform/android-sdk/build-tools/33.0.0
+          # Копируем системный aidl туда, где его ждет buildozer
+          cp $(which aidl) ~/.buildozer/android/platform/android-sdk/build-tools/33.0.0/ || true
+
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # ПРИНУДИТЕЛЬНОЕ ПРИНЯТИЕ ЛИЦЕНЗИЙ (РЕШАЕТ ОШИБКУ ACCEPT y/N)
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          yes | buildozer android signatures || true
-          
-          # ЗАПУСК СБОРКИ
+          # Запускаем сборку, пропуская обновление SDK
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
+          # Указываем buildozer использовать системный SDK
+          ANDROID_SDK_HOME: ${{ vars.ANDROID_SDK_ROOT }}
+          ANDROID_NDK_HOME: ${{ vars.ANDROID_NDK_ROOT }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
