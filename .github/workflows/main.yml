@@ -22,6 +22,9 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
+          # Принудительно принимаем лицензии SDK перед сборкой
+          yes | buildozer android signatures || true
+          # Запуск основной сборки
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
