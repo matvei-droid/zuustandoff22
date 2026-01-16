@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    # Используем 20.04 — это самая стабильная среда для Buildozer без ошибок библиотек
+    # Используем 20.04 — это решает проблему "Unable to locate package libtinfo5"
     runs-on: ubuntu-20.04
 
     steps:
@@ -28,7 +28,7 @@ jobs:
 
       - name: Pre-accept Android Licenses
         run: |
-          # Создаем файлы лицензий вручную, чтобы Buildozer не спрашивал Accept (y/N)
+          # Создаем файлы лицензий вручную, чтобы Buildozer не запрашивал Accept (y/N)
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           echo -e "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb7437307295be43d46e\n24333f8a63b6825ea4c5573f69c00e4b44b052d8" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
           echo -e "84831b9409646a918e30573bab4c9c91346d8abd\n5046632257cd17473453181e38c3533896439119" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
@@ -36,7 +36,6 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Собираем
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
@@ -46,4 +45,3 @@ jobs:
         with:
           name: zuulauncherso2-apk
           path: bin/*.apk
- 
