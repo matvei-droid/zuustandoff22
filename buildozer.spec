@@ -1,44 +1,61 @@
 [app]
-# Название приложения
+
+# (section) Title of your application
 title = Zuu Optimizer
 
-# Имя пакета (маленькими буквами, без пробелов)
+# (section) Package name
 package.name = zuuoptimizer
 
-# Домен организации
+# (section) Package domain (needed for android packaging)
 package.domain = org.zuu
 
-# Исходный код
+# (section) Source code where the main.py live
 source.dir = .
+
+# (section) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
 
-# Версия
+# (section) Application version
 version = 1.0
 
-# Зависимости (Kivy обязателен для твоего кода)
-requirements = python3,kivy
+# (section) Application requirements
+# Добавлен hostpython3 для стабильности сборки
+requirements = python3,kivy,hostpython3
 
-# Ориентация экрана
+# (section) Supported orientations
 orientation = portrait
 
-# --- Настройки Android ---
+# --- Android specific ---
 
-# Разрешения для работы с памятью и системой
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, PACKAGE_USAGE_STATS
-
-# Соответствие версии твоего телефона (Android 13)
+# (section) Android API to use
+# Используем API 33 (Android 13) как в твоем запросе
 android.api = 33
 android.minapi = 21
-android.ndk = 25b
 android.sdk = 33
+android.ndk = 25b
 
-# Архитектура процессора для Helio G88
+# (section) Android permissions
+# PACKAGE_USAGE_STATS часто ломает автоматическую сборку, 
+# для начала соберем с базовыми правами.
+android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
+
+# (section) Architecture to build for
 android.archs = arm64-v8a, armeabi-v7a
 
-# Полноэкранный режим (0 - выключен, 1 - включен)
+# (section) Allow screen to be full screen
 android.fullscreen = 0
 
-# --- Настройки сборки ---
+# (section) Android logcat filters
+android.logcat_filters = *:S python:D
+
+# (section) Copy library instead of making a libpython.so
+android.copy_libs = 1
+
+# --- Buildozer settings ---
 [buildozer]
+
+# (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
 log_level = 2
+
+# (int) Display warning if buildozer is run as root (0 = off, 1 = on)
 warn_on_root = 1
