@@ -1,61 +1,36 @@
 [app]
-
-# (section) Title of your application
-title = Zuu Optimizer
-
-# (section) Package name
-package.name = zuuoptimizer
-
-# (section) Package domain (needed for android packaging)
+# Основная информация
+title = zuulauncherso2
+package.name = zuulauncherso2
 package.domain = org.zuu
 
-# (section) Source code where the main.py live
+# Исходники
 source.dir = .
-
-# (section) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
-
-# (section) Application version
 version = 1.0
 
-# (section) Application requirements
-# Добавлен hostpython3 для стабильности сборки
-requirements = python3,kivy,hostpython3
+# Зависимости (hostpython3 критически важен для компиляции)
+requirements = python3,kivy==2.3.0,hostpython3
 
-# (section) Supported orientations
 orientation = portrait
 
-# --- Android specific ---
-
-# (section) Android API to use
-# Используем API 33 (Android 13) как в твоем запросе
+# Настройки Android
 android.api = 33
-android.minapi = 21
 android.sdk = 33
+android.minapi = 21
 android.ndk = 25b
+# Фиксируем версию инструментов, чтобы избежать ошибки с Aidl
+android.build_tools_version = 33.0.0
 
-# (section) Android permissions
-# PACKAGE_USAGE_STATS часто ломает автоматическую сборку, 
-# для начала соберем с базовыми правами.
+# Разрешения
 android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
 
-# (section) Architecture to build for
-android.archs = arm64-v8a, armeabi-v7a
+# Архитектура (для теста оставляем одну, так быстрее и надежнее)
+android.archs = arm64-v8a
 
-# (section) Allow screen to be full screen
+# Экран
 android.fullscreen = 0
 
-# (section) Android logcat filters
-android.logcat_filters = *:S python:D
-
-# (section) Copy library instead of making a libpython.so
-android.copy_libs = 1
-
-# --- Buildozer settings ---
 [buildozer]
-
-# (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
 log_level = 2
-
-# (int) Display warning if buildozer is run as root (0 = off, 1 = on)
 warn_on_root = 1
