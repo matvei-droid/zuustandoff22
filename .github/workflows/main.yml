@@ -1,8 +1,5 @@
-name: Build zuulauncherso2
-on: 
-  workflow_dispatch: # Добавил кнопку ручного запуска
-  push:
-    branches: [ main ]
+name: Build APK
+on: [push, workflow_dispatch]
 
 jobs:
   build:
@@ -10,24 +7,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-          pip3 install --user --upgrade Cython==0.29.33 virtualenv buildozer
+
+      - name: Install Buildozer
+        run: pip3 install --user --upgrade Cython==0.29.33 virtualenv buildozer
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Магия принятия лицензий без лишних утилит
+          # Авто-принятие лицензий для предотвращения зависания
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           echo -e "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb7437307295be43d46e\n24333f8a63b6825ea4c5573f69c00e4b44b052d8" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-          
           buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_DOMAIN: 1
